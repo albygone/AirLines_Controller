@@ -1,9 +1,9 @@
-﻿using System;
+﻿using AlbyLib;
+using Newtonsoft.Json;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Windows.Forms;
-using Newtonsoft.Json;
-using AlbyLib;
 
 namespace AlbyAirLines.Controllers
 {
@@ -21,10 +21,10 @@ namespace AlbyAirLines.Controllers
 
             server.ClientConnected += HandleResponse;
             server.Error += HandleError;
-            
+
             server.Start();
         }
-        
+
         private string HandleResponse(string received)
         {
             string ritorno;
@@ -40,7 +40,7 @@ namespace AlbyAirLines.Controllers
             {
                 return "400";
             }
-            
+
             if (!IsIdInDb(apc.Id))
             {
                 _sqlController.Query("INSERT INTO live_air_traffic (" +
@@ -60,7 +60,7 @@ namespace AlbyAirLines.Controllers
             {
                 _sqlController.Query("UPDATE live_air_traffic SET " +
                                      "Id = @id, longitude = @longitude, latitude = @latitude," +
-                                     " plane_name = @plane_name, plane_type = @plane_type "+
+                                     " plane_name = @plane_name, plane_type = @plane_type " +
                                      "WHERE Id = @id",
                     new SqlParameter[]{
                         new SqlParameter("@id", SqlDbType.VarChar, 15) { Value = apc.Id} ,
@@ -91,7 +91,7 @@ namespace AlbyAirLines.Controllers
             do
             {
                 newId = "";
-                
+
                 for (int i = 0; i < 15; i++)
                     newId += Convert.ToChar(rnd.Next(0, 26) + (rnd.Next(0, 100) < 50 ? 65 : 97));
 
@@ -111,6 +111,11 @@ namespace AlbyAirLines.Controllers
         public DataTable GetLivePositions()
         {
             return (DataTable)_sqlController.Query("SELECT * FROM live_air_traffic");
+        }
+
+        public void ClearLivePositions()
+        {
+            _sqlController.Query("delete from live_air_traffic", QueryType.NonQuery);
         }
     }
 }

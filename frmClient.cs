@@ -1,10 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using AlbyAirLines.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Windows.Forms;
-using AlbyAirLines.Controllers;
 
 namespace AlbyAirLines
 {
@@ -12,16 +11,18 @@ namespace AlbyAirLines
     {
         private Client client;
         private AirPlaneClientModel apc;
+        private double delta = 0;
 
         public frmClient()
         {
             InitializeComponent();
         }
-        
+
         private void frmClient_Load(object sender, EventArgs e)
         {
             client = new Client("127.0.0.1", 5000);
             client.UpdateProgress += UpdateProgress;
+            client.StopTravelling += StopTravelling;
         }
 
         private void UpdateProgress(int progress)
@@ -33,10 +34,18 @@ namespace AlbyAirLines
         {
             btnManda.Enabled = false;
             btnRoute.Enabled = false;
-            
+
             try
             {
-                client.SendPositionSequence(100, apc, StopTravelling);
+                double delta = 0.25;
+
+                switch (apc.Type)
+                {
+                    default:
+                        break;
+                }
+
+                client.SendPositionSequence(1000, apc, delta);
             }
             catch (Exception ex)
             {
@@ -53,7 +62,24 @@ namespace AlbyAirLines
             DataTable airports = client.GetAirports();
             Random rnd = new Random();
 
-            string[] names = {"boeing 747", "f-16", "elicottero", "ultraleggero" };
+            Dictionary<string, char> names_types = new Dictionary<string, char>
+            {
+                { "boeing 747", 'L' },
+                { "f-16", 'M' },
+                { "elicottero", 'G' },
+                { "ultraleggero", 'E' }
+            };
+
+            Dictionary<char, double> types_delta = new Dictionary<char, double>
+            {
+                { 'L', 0.15},
+                { 'M', 0.25 },
+                { 'G', 0.10 },
+                { 'E', 0.8 }
+            };
+
+            KeyValuePair<string, char> rnd_name_type = names_types.ElementAt(rnd.Next(0, names_types.Count));
+            delta = types_delta[rnd_name_type.Value];
 
             do
             {
@@ -62,11 +88,11 @@ namespace AlbyAirLines
             } while (from == to);
 
             apc = new AirPlaneClientModel(
-                    Convert.ToDouble(airports.Rows[from][2]),
-                    Convert.ToDouble(airports.Rows[from][3]),
-                    names[rnd.Next(0, names.Length)],
-                    'L',
-                    client.RequestId()
+                Convert.ToDouble(airports.Rows[from][2]),
+                Convert.ToDouble(airports.Rows[from][3]),
+                rnd_name_type.Key,
+                rnd_name_type.Value,
+                client.RequestId()
             )
             {
                 ToLong = Convert.ToDouble(airports.Rows[to][2]),
@@ -75,13 +101,14 @@ namespace AlbyAirLines
                 FromLong = Convert.ToDouble(airports.Rows[from][2])
             };
 
-            Dictionary<string, string> routeInformation = new Dictionary<string, string>();
-            
-            routeInformation.Add("Aereo", apc.Name);
-            routeInformation.Add("From", airports.Rows[from][1].ToString());
-            routeInformation.Add("To", airports.Rows[to][1].ToString());
+            Dictionary<string, string> routeInformation = new Dictionary<string, string>
+            {
+                { "Aereo", apc.Name },
+                { "From", airports.Rows[from][1].ToString() },
+                { "To", airports.Rows[to][1].ToString() }
+            };
 
-            List <KeyValuePair<string, string>> lstDgv = new List<KeyValuePair<string, string>>();
+            List<KeyValuePair<string, string>> lstDgv = new List<KeyValuePair<string, string>>();
 
             lstDgv.AddRange(routeInformation);
 

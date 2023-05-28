@@ -1,9 +1,7 @@
-﻿using System;
-using System.Data;
+﻿using AlbyAirLines.Controllers;
+using System;
 using System.Timers;
 using System.Windows.Forms;
-using AlbyAirLines.Controllers;
-using AlbyLib;
 
 namespace AlbyAirLines
 {
@@ -14,10 +12,10 @@ namespace AlbyAirLines
         {
             InitializeComponent();
         }
-        
+
         private void frmServerConsole_Load(object sender, EventArgs e)
         {
-            tmrFetch.Interval = 500;
+            tmrFetch.Interval = 1500;
             tmrFetch.Start();
             server.Start();
         }
@@ -25,7 +23,6 @@ namespace AlbyAirLines
         private void btnStop_Click(object sender, EventArgs e)
         {
             frmClient drm = new frmClient();
-
             drm.Show();
         }
 
@@ -38,6 +35,18 @@ namespace AlbyAirLines
         {
             frmControlRoom frm = new frmControlRoom();
             frm.Show();
+        }
+
+
+        private void btnClearLive_Click(object sender, EventArgs e)
+        {
+            server.ClearLivePositions();
+        }
+
+        private void btnOpenCockpit_Click(object sender, EventArgs e)
+        {
+            frmCockPit frmCP = new frmCockPit();
+            frmCP.Show();
         }
     }
 }

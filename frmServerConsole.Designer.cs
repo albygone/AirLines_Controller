@@ -32,6 +32,8 @@
             this.dgvProva = new System.Windows.Forms.DataGridView();
             this.tmrFetch = new System.Timers.Timer();
             this.btnOpenControlRoom = new System.Windows.Forms.Button();
+            this.btnClearLive = new System.Windows.Forms.Button();
+            this.btnOpenCockpit = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProva)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tmrFetch)).BeginInit();
             this.SuspendLayout();
@@ -48,10 +50,13 @@
             // 
             // dgvProva
             // 
-            this.dgvProva.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvProva.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvProva.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvProva.Location = new System.Drawing.Point(377, 54);
             this.dgvProva.Name = "dgvProva";
+            this.dgvProva.RowHeadersWidth = 62;
             this.dgvProva.RowTemplate.Height = 28;
             this.dgvProva.Size = new System.Drawing.Size(1143, 743);
             this.dgvProva.TabIndex = 2;
@@ -64,7 +69,7 @@
             // 
             // btnOpenControlRoom
             // 
-            this.btnOpenControlRoom.Location = new System.Drawing.Point(88, 156);
+            this.btnOpenControlRoom.Location = new System.Drawing.Point(88, 132);
             this.btnOpenControlRoom.Name = "btnOpenControlRoom";
             this.btnOpenControlRoom.Size = new System.Drawing.Size(188, 63);
             this.btnOpenControlRoom.TabIndex = 3;
@@ -72,11 +77,33 @@
             this.btnOpenControlRoom.UseVisualStyleBackColor = true;
             this.btnOpenControlRoom.Click += new System.EventHandler(this.btnOpenControlRoom_Click);
             // 
+            // btnClearLive
+            // 
+            this.btnClearLive.Location = new System.Drawing.Point(88, 295);
+            this.btnClearLive.Name = "btnClearLive";
+            this.btnClearLive.Size = new System.Drawing.Size(188, 63);
+            this.btnClearLive.TabIndex = 4;
+            this.btnClearLive.Text = "Pulisci lista";
+            this.btnClearLive.UseVisualStyleBackColor = true;
+            this.btnClearLive.Click += new System.EventHandler(this.btnClearLive_Click);
+            // 
+            // btnOpenCockpit
+            // 
+            this.btnOpenCockpit.Location = new System.Drawing.Point(88, 214);
+            this.btnOpenCockpit.Name = "btnOpenCockpit";
+            this.btnOpenCockpit.Size = new System.Drawing.Size(188, 63);
+            this.btnOpenCockpit.TabIndex = 5;
+            this.btnOpenCockpit.Text = "Apri cockpit";
+            this.btnOpenCockpit.UseVisualStyleBackColor = true;
+            this.btnOpenCockpit.Click += new System.EventHandler(this.btnOpenCockpit_Click);
+            // 
             // frmServerConsole
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1584, 822);
+            this.Controls.Add(this.btnOpenCockpit);
+            this.Controls.Add(this.btnClearLive);
             this.Controls.Add(this.btnOpenControlRoom);
             this.Controls.Add(this.dgvProva);
             this.Controls.Add(this.btnStop);
@@ -86,6 +113,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvProva)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tmrFetch)).EndInit();
             this.ResumeLayout(false);
+
         }
 
         private System.Windows.Forms.Button btnOpenControlRoom;
@@ -97,6 +125,8 @@
         #endregion
 
         private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.Button btnClearLive;
+        private System.Windows.Forms.Button btnOpenCockpit;
     }
 }
 

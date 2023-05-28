@@ -35,6 +35,7 @@ namespace AlbyAirLines
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmControlRoom));
             this.pcbMap = new System.Windows.Forms.PictureBox();
             this.tmrFetch = new System.Windows.Forms.Timer(this.components);
+            this.tmrUpdateCockPit = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pcbMap)).BeginInit();
             this.SuspendLayout();
             // 
@@ -53,6 +54,10 @@ namespace AlbyAirLines
             this.tmrFetch.Interval = 5;
             this.tmrFetch.Tick += new System.EventHandler(this.tmrFetch_Tick);
             // 
+            // tmrUpdateCockPit
+            // 
+            this.tmrUpdateCockPit.Tick += new System.EventHandler(this.tmrUpdateCockPit_Tick);
+            // 
             // frmControlRoom
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -65,6 +70,7 @@ namespace AlbyAirLines
             ((System.ComponentModel.ISupportInitialize)(this.pcbMap)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         private System.Windows.Forms.Timer tmrFetch;
@@ -72,5 +78,7 @@ namespace AlbyAirLines
         private System.Windows.Forms.PictureBox pcbMap;
 
         #endregion
+
+        private System.Windows.Forms.Timer tmrUpdateCockPit;
     }
 }

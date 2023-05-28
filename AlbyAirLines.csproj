@@ -54,7 +54,10 @@
   <ItemGroup>
     <Compile Include="Controllers\client\Client.cs" />
     <Compile Include="Controllers\client\SocketClient.cs" />
+    <Compile Include="Controllers\cockpit\CockPit.cs" />
+    <Compile Include="Controllers\cockpit\SocketCockPit.cs" />
     <Compile Include="Controllers\controlRoom\ControlRoom.cs" />
+    <Compile Include="Controllers\controlRoom\SocketControlRoom.cs" />
     <Compile Include="Controllers\server\Server.cs" />
     <Compile Include="Controllers\AlbySqlController.cs" />
     <Compile Include="Controllers\server\SocketServer.cs" />
@@ -69,6 +72,12 @@
     </Compile>
     <Compile Include="frmControlRoom.Designer.cs">
       <DependentUpon>frmControlRoom.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmCockPit.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmCockPit.Designer.cs">
+      <DependentUpon>frmCockPit.cs</DependentUpon>
     </Compile>
     <Compile Include="frmServerConsole.cs">
       <SubType>Form</SubType>
@@ -85,6 +94,9 @@
     <EmbeddedResource Include="frmControlRoom.resx">
       <DependentUpon>frmControlRoom.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmCockPit.resx">
+      <DependentUpon>frmCockPit.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmServerConsole.resx">
       <DependentUpon>frmServerConsole.cs</DependentUpon>
     </EmbeddedResource>
@@ -96,6 +108,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -112,6 +125,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\startButton.jpg" />
+    <None Include="assets\rocket.png" />
+    <None Include="assets\stopButton.jpg" />
     <Content Include="assets\worldMap.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

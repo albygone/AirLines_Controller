@@ -37,6 +37,7 @@
             // 
             // btnManda
             // 
+            this.btnManda.Enabled = false;
             this.btnManda.Location = new System.Drawing.Point(12, 96);
             this.btnManda.Name = "btnManda";
             this.btnManda.Size = new System.Drawing.Size(190, 67);
@@ -61,13 +62,16 @@
             this.dgvRoute.AllowUserToDeleteRows = false;
             this.dgvRoute.AllowUserToResizeColumns = false;
             this.dgvRoute.AllowUserToResizeRows = false;
-            this.dgvRoute.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvRoute.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvRoute.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvRoute.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dgvRoute.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvRoute.Location = new System.Drawing.Point(246, 24);
             this.dgvRoute.Name = "dgvRoute";
             this.dgvRoute.ReadOnly = true;
+            this.dgvRoute.RowHeadersWidth = 62;
             this.dgvRoute.RowTemplate.Height = 28;
             this.dgvRoute.Size = new System.Drawing.Size(565, 226);
             this.dgvRoute.TabIndex = 3;
@@ -90,9 +94,10 @@
             this.Controls.Add(this.btnManda);
             this.Name = "frmClient";
             this.Text = "Client";
-            this.Load += new System.EventHandler(this.frmClient_Load);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmClient_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.dgvRoute)).EndInit();
             this.ResumeLayout(false);
+
         }
 
         private System.Windows.Forms.ProgressBar pgbAndamento;

@@ -8,40 +8,46 @@ namespace AlbyAirLines
     public partial class frmCockPit : Form
     {
         CockPit CockPit;
+
+        string lastKey = "D";
         int mult = 1;
 
         public frmCockPit()
         {
             InitializeComponent();
+
+            CockPit = new CockPit(Application.StartupPath);
+            CockPit.Error += ErrorHandler;
+            CockPit.StopFlight += StopFlight;
         }
 
         private void frmCockPit_Load(object sender, System.EventArgs e)
         {
-            CockPit = new CockPit();
-            CockPit.Error += ErrorHandler;
-            CockPit.StopFlight += StopFlight;
-
             cmbStart.DataSource = CockPit.GetAirports();
         }
 
         private void pcbStart_Click(object sender, System.EventArgs e)
         {
-            string ipString = txtIp.Text.Trim();
-
-            IPAddress ip;
-
-            if (IPAddress.TryParse(ipString, out ip))
+            if (!tmrSend.Enabled && !tmrUpdate.Enabled)
             {
-                CockPit.Start(ip, cmbStart.Text);
+                string ipString = txtIp.Text.Trim();
 
-                tmrSend.Interval = 100;
+                IPAddress ip;
 
-                tmrSend.Start();
+                if (IPAddress.TryParse(ipString, out ip))
+                {
+                    if (CockPit.Start(ip, cmbStart.Text))
+                    {
+                        tmrSend.Interval = 100;
 
-                tmrUpdate.Start();
+                        tmrSend.Start();
+
+                        tmrUpdate.Start();
+                    }
+                }
+                else
+                    MessageBox.Show("Ip errato");
             }
-            else
-                MessageBox.Show("Ip errato");
         }
 
         private void tmrSend_Tick(object sender, System.EventArgs e)
@@ -63,13 +69,13 @@ namespace AlbyAirLines
 
             Direction direction = Direction.right;
 
-            if (chkDown.Checked)
+            if (lastKey == "S")
                 direction = Direction.down;
-            else if (chkUp.Checked)
+            else if (lastKey == "W")
                 direction = Direction.up;
-            else if (chkLeft.Checked)
+            else if (lastKey == "A")
                 direction = Direction.left;
-            else if (chkRight.Checked)
+            else if (lastKey == "D")
                 direction = Direction.right;
 
             CockPit.CalculateNextPosition(direction, delta * mult);
@@ -88,16 +94,27 @@ namespace AlbyAirLines
             MessageBox.Show(message);
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
+        private void pcbRocket_Click(object sender, EventArgs e)
         {
             mult = mult == 10 ? 1 : 10;
         }
 
-        private void pictureBox2_Click(object sender, EventArgs e)
+        private void pcbStop_Click(object sender, EventArgs e)
         {
             tmrSend.Stop();
             tmrUpdate.Stop();
 
+            CockPit.Stop();
+        }
+
+        private void txtDirection_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            lastKey = e.KeyChar.ToString().ToUpper();
+            e.Handled = true;
+        }
+
+        private void frmCockPit_FormClosing(object sender, FormClosingEventArgs e)
+        {
             CockPit.Stop();
         }
     }

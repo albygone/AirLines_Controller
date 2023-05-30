@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Windows.Forms;
-using Newtonsoft.Json;
 
 namespace AlbyAirLines
 {
@@ -13,15 +12,14 @@ namespace AlbyAirLines
         private IPAddress Ip { get; }
 
         private Socket _client;
-        
-        public delegate void SocketClientHandler(string msg);
 
+        public delegate void SocketClientHandler(string msg);
         public event SocketClientHandler Error;
 
         public SocketClient(string ip, int port)
         {
-            this.Ip = IPAddress.Parse(ip);
-            this.Port = port;
+            Ip = IPAddress.Parse(ip);
+            Port = port;
         }
 
         public string SendData(string data)
@@ -36,9 +34,9 @@ namespace AlbyAirLines
                 data += "<EOF>";
 
                 _client.Send(Encoding.ASCII.GetBytes(data));
-                
+
                 response = WaitForResponse();
-                
+
                 _client.Shutdown(SocketShutdown.Both);
                 _client.Close();
             }
@@ -61,7 +59,7 @@ namespace AlbyAirLines
             {
                 while (true)
                 {
-                    if(_client.Available > 0)
+                    if (_client.Available > 0)
                         _client.Receive(b);
 
                     response = Encoding.UTF8.GetString(b);
@@ -75,7 +73,7 @@ namespace AlbyAirLines
                 if (Error != null) Error(ex.Message);
                 response = "<EOF>";
             }
-            
+
             return response.Substring(0, response.IndexOf("<EOF>"));
         }
     }

@@ -9,13 +9,12 @@ namespace AlbyAirLines.Controllers.cockpit
 {
     public class CockPit
     {
-        private AlbySqlControllerSingle _sqlController;
+        private AlbySqlControllerMultiple _sqlController;
         private SocketCockPit SocketCockPit;
 
         private AirPlaneClientModel apc;
 
-        private string DbPath =
-            "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Users\\albyg\\Documents\\Scuola\\2022-2023\\Informatica\\Progetti\\Alby air lines\\DataBase\\AAL_DB.mdf\";Integrated Security=True;Connect Timeout=30";
+        private string DbPath = "";
 
         public Dictionary<string, (double, double)> Airports = new Dictionary<string, (double, double)>();
 
@@ -25,9 +24,19 @@ namespace AlbyAirLines.Controllers.cockpit
         public delegate void StopFlightDelegate();
         public event StopFlightDelegate StopFlight;
 
-        public CockPit()
+        public CockPit(string path)
         {
-            _sqlController = new AlbySqlControllerSingle(DbPath);
+            DbPath = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"{path}\\DataBase\\AAL_DB.mdf\";Integrated Security=True;Connect Timeout=30";
+
+            try
+            {
+                _sqlController = new AlbySqlControllerMultiple(DbPath);
+            }
+            catch (Exception ex)
+            {
+                if (Error != null)
+                    Error(ex.Message);
+            }
         }
 
         public bool Start(IPAddress ip, string airportName)
@@ -38,17 +47,24 @@ namespace AlbyAirLines.Controllers.cockpit
                 SocketCockPit = new SocketCockPit(ip.ToString(), 10000);
                 SocketCockPit.Error += ErrorHandler;
 
-                SocketCockPit.OpenConnection();
+                if (SocketCockPit.OpenConnection())
+                {
+                    (double lon, double lat) = airportName != "" ? Airports[airportName] : (0, 0);
 
-                (double lon, double lat) = Airports[airportName];
+                    apc = new AirPlaneClientModel(lon, lat, "Personal Airplane", 'M', "");
 
-                apc = new AirPlaneClientModel(lon, lat, "Personal Airplane", 'M', "");
-
-                ok = true;
+                    ok = true;
+                }
+                else
+                {
+                    if (Error != null)
+                        Error("Connessione non riuscita");
+                }
             }
             catch (Exception ex)
             {
-                Error(ex.Message);
+                if (Error != null)
+                    Error(ex.Message);
             }
 
             return ok;
@@ -56,9 +72,12 @@ namespace AlbyAirLines.Controllers.cockpit
 
         public void Stop()
         {
-            Thread.Sleep(100);
-            SocketCockPit.SendData("close", false);
-            SocketCockPit.CloseConnection();
+            if (SocketCockPit != null)
+            {
+                Thread.Sleep(100);
+                SocketCockPit.SendData("close", false);
+                SocketCockPit.CloseConnection();
+            }
         }
 
         public void SendPosition()
@@ -74,19 +93,29 @@ namespace AlbyAirLines.Controllers.cockpit
             }
             catch (Exception ex)
             {
-                Error(ex.Message);
+                if (Error != null)
+                    Error(ex.Message);
             }
         }
 
         public List<string> GetAirports()
         {
-            DataTable dt = (DataTable)_sqlController.Query("SELECT * FROM airports");
             List<string> lstAirportsName = new List<string>();
 
-            foreach (DataRow airport in dt.Rows)
+            try
             {
-                Airports.Add(airport[1].ToString(), (Convert.ToDouble(airport[2]), Convert.ToDouble(airport[3])));
-                lstAirportsName.Add(airport[1].ToString());
+                DataTable dt = (DataTable)_sqlController.Query("SELECT * FROM airports");
+
+                foreach (DataRow airport in dt.Rows)
+                {
+                    Airports.Add(airport[1].ToString(), (Convert.ToDouble(airport[2]), Convert.ToDouble(airport[3])));
+                    lstAirportsName.Add(airport[1].ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                if (Error != null)
+                    Error(ex.Message);
             }
 
             return lstAirportsName;
@@ -125,7 +154,8 @@ namespace AlbyAirLines.Controllers.cockpit
 
         private void ErrorHandler(string message)
         {
-            Error(message);
+            if (Error != null)
+                Error(message);
         }
     }
 

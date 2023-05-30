@@ -11,6 +11,8 @@ namespace AlbyAirLines
     {
         ControlRoom controlRoom;
 
+        bool readyToFetch = false;
+
         PictureBox pcbCockPit = new PictureBox()
         {
             Image = Image.FromFile("../../assets/airplaneCockPit.png"),
@@ -27,16 +29,26 @@ namespace AlbyAirLines
 
             Controls.Add(pcbCockPit);
 
-            controlRoom = new ControlRoom(pcbMap);
+            controlRoom = new ControlRoom(pcbMap, Application.StartupPath);
+            controlRoom.Error += ErrorHandler;
 
-            controlRoom.InitialisePcb(Controls);
+            bool dbConnected = controlRoom.GetLivePositions() != null;
+
+
+            if (dbConnected)
+            {
+                controlRoom.InitialisePcb(Controls);
+                tmrFetch.Start();
+            }
         }
 
         private void frmControlRoom_Load(object sender, EventArgs e)
         {
             tmrFetch.Interval = 500;
 
-            tmrFetch.Start();
+            if (readyToFetch)
+                tmrFetch.Start();
+
             tmrUpdateCockPit.Start();
         }
 
@@ -49,26 +61,31 @@ namespace AlbyAirLines
         {
             DataTable dt = controlRoom.GetLivePositions();
 
-            List<AirPlaneClientModel> lstApc = new List<AirPlaneClientModel>();
-
-            int i = 0;
-
-            foreach (DataRow dtRow in dt.Rows)
+            if (dt != null)
             {
-                lstApc.Add(new AirPlaneClientModel(
-                    Convert.ToDouble(dtRow[1]),
-                    Convert.ToDouble(dtRow[2]),
-                    dtRow[3].ToString(),
-                    dtRow[4].ToString().ToCharArray()[0],
-                    dtRow[0].ToString()));
+                List<AirPlaneClientModel> lstApc = new List<AirPlaneClientModel>();
 
-                PictureBox pcb = controlRoom.PlotPosition(lstApc[i], lstApc[i].Id);
-                pcb.BringToFront();
+                int i = 0;
 
-                i++;
+                foreach (DataRow dtRow in dt.Rows)
+                {
+                    lstApc.Add(new AirPlaneClientModel(
+                        Convert.ToDouble(dtRow[1]),
+                        Convert.ToDouble(dtRow[2]),
+                        dtRow[3].ToString(),
+                        dtRow[4].ToString().ToCharArray()[0],
+                        dtRow[0].ToString()));
+
+                    PictureBox pcb = controlRoom.PlotPosition(lstApc[i], lstApc[i].Id);
+                    pcb.BringToFront();
+
+                    i++;
+                }
+
+                controlRoom.ClearOldPositions(lstApc);
             }
-
-            controlRoom.ClearOldPositions(lstApc);
+            else
+                tmrFetch.Stop();
         }
 
         private void tmrUpdateCockPit_Tick(object sender, EventArgs e)
@@ -77,6 +94,11 @@ namespace AlbyAirLines
 
             pcbCockPit.Location = new Point(x, y);
             pcbCockPit.BringToFront();
+        }
+
+        private void ErrorHandler(string message)
+        {
+            MessageBox.Show(message);
         }
     }
 }

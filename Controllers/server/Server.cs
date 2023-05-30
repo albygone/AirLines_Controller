@@ -3,26 +3,40 @@ using Newtonsoft.Json;
 using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.Windows.Forms;
 
 namespace AlbyAirLines.Controllers
 {
     public class Server
     {
-        private SocketServer server = new SocketServer(15, "127.0.0.1", 5000);
-        private AlbySqlControllerMultiple _sqlController;
+        private SocketServer server = new SocketServer(15, 5000);
+        private AlbySqlControllerMultiple sqlController;
 
-        private string DbPath =
-            "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Users\\albyg\\Documents\\Scuola\\2022-2023\\Informatica\\Progetti\\Alby air lines\\DataBase\\AAL_DB.mdf\";Integrated Security=True;Connect Timeout=30";
+        public delegate void ErrorDelegate(string message);
+        public event ErrorDelegate Error;
+
+        private string DbPath = "";
+
+        public Server(string path)
+        {
+            DbPath = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"{path}\\DataBase\\AAL_DB.mdf\";Integrated Security=True;Connect Timeout=30";
+        }
 
         public void Start()
         {
-            _sqlController = new AlbySqlControllerMultiple(DbPath);
+            try
+            {
+                sqlController = new AlbySqlControllerMultiple(DbPath);
 
-            server.ClientConnected += HandleResponse;
-            server.Error += HandleError;
+                server.ClientConnected += HandleResponse;
+                server.Error += HandleError;
 
-            server.Start();
+                server.Start();
+            }
+            catch (Exception ex)
+            {
+                if (Error != null)
+                    Error(ex.Message);
+            }
         }
 
         private string HandleResponse(string received)
@@ -43,7 +57,7 @@ namespace AlbyAirLines.Controllers
 
             if (!IsIdInDb(apc.Id))
             {
-                _sqlController.Query("INSERT INTO live_air_traffic (" +
+                sqlController.Query("INSERT INTO live_air_traffic (" +
                                      "Id, longitude, latitude, plane_name, plane_type)" +
                                      "VALUES (@id, @longitude, @latitude, @plane_name, @plane_type)",
                     new SqlParameter[]{
@@ -58,7 +72,7 @@ namespace AlbyAirLines.Controllers
             }
             else
             {
-                _sqlController.Query("UPDATE live_air_traffic SET " +
+                sqlController.Query("UPDATE live_air_traffic SET " +
                                      "Id = @id, longitude = @longitude, latitude = @latitude," +
                                      " plane_name = @plane_name, plane_type = @plane_type " +
                                      "WHERE Id = @id",
@@ -78,15 +92,21 @@ namespace AlbyAirLines.Controllers
             return ritorno;
         }
 
-        private void HandleError(string msg)
+        public void Close()
         {
-            MessageBox.Show(msg);
+            server.Close();
+        }
+
+        private void HandleError(string message)
+        {
+            if (message != "Thread interrotto." && Error != null)
+                Error(message);
         }
 
         private string GetNewId()
         {
             Random rnd = new Random();
-            string newId = "";
+            string newId;
 
             do
             {
@@ -100,22 +120,44 @@ namespace AlbyAirLines.Controllers
             return newId + "<EOF>";
         }
 
-        private bool IsIdInDb(string id) =>
-            (int)_sqlController.Query("SELECT count(*) FROM live_air_traffic WHERE Id = @newId",
+        private bool IsIdInDb(string id)
+        {
+            return (int)sqlController.Query("SELECT count(*) FROM live_air_traffic WHERE Id = @newId",
                     new SqlParameter[]
                     {
                         new SqlParameter("@newId", SqlDbType.VarChar, 15) { Value = id }
                     },
                     QueryType.Scalar) > 0;
+        }
 
         public DataTable GetLivePositions()
         {
-            return (DataTable)_sqlController.Query("SELECT * FROM live_air_traffic");
+            DataTable dt = null;
+
+            try
+            {
+                dt = (DataTable)sqlController.Query("SELECT * FROM live_air_traffic");
+            }
+            catch (Exception ex)
+            {
+                if (Error != null)
+                    Error(ex.Message);
+            }
+
+            return dt;
         }
 
         public void ClearLivePositions()
         {
-            _sqlController.Query("delete from live_air_traffic", QueryType.NonQuery);
+            try
+            {
+                sqlController.Query("delete from live_air_traffic", QueryType.NonQuery);
+            }
+            catch (Exception ex)
+            {
+                if (Error != null)
+                    Error(ex.Message);
+            }
         }
     }
 }

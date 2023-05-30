@@ -16,15 +16,15 @@ namespace AlbyAirLines.Controllers.controlRoom
         private EndPoint _endPoint;
         private Thread _mainThread;
 
-        public delegate void SocketServerHandler(string msg);
+        public delegate void SocketHandlerDelegate(string msg);
         public delegate string ResponseHandler(string received);
 
         public event ResponseHandler ClientConnected;
-        public event SocketServerHandler Error;
+        public event SocketHandlerDelegate Error;
 
-        public SocketControlRoom(string ip, int port)
+        public SocketControlRoom(int port)
         {
-            Ip = IPAddress.Parse(ip);
+            Ip = IPAddress.Any;
             Port = port;
         }
 
@@ -33,7 +33,7 @@ namespace AlbyAirLines.Controllers.controlRoom
             try
             {
                 _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _endPoint = new IPEndPoint(Ip, Port);
+                _endPoint = new IPEndPoint(IPAddress.Any, Port);
                 _server.Bind(_endPoint);
                 _server.Listen(MaximumConnection);
 

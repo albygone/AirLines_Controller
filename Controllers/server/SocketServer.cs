@@ -1,10 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace AlbyAirLines
 {
@@ -13,24 +11,24 @@ namespace AlbyAirLines
         private int MaximumConnection { get; }
         private int Port { get; }
         private IPAddress Ip { get; }
-        
+
         private Socket _server;
         private EndPoint _endPoint;
         private Thread _mainThread;
-        
-        public delegate void SocketServerHandler(string msg);
+
+        public delegate void SocketHandlerDelegate(string msg);
         public delegate string ResponseHandler(string received);
 
         public event ResponseHandler ClientConnected;
-        public event SocketServerHandler Error;
+        public event SocketHandlerDelegate Error;
 
-        public SocketServer(int maximumConnection, string ip, int port)
+        public SocketServer(int maximumConnection, int port)
         {
             if (maximumConnection < 1)
                 throw new Exception("Wrong parameters");
 
             MaximumConnection = maximumConnection;
-            Ip = IPAddress.Parse(ip);
+            Ip = IPAddress.Any;
             Port = port;
         }
 
@@ -55,6 +53,16 @@ namespace AlbyAirLines
             {
                 if (Error != null) Error(ex.Message);
             }
+        }
+
+        public void Close()
+        {
+            try
+            {
+                _server.Close();
+                _mainThread.Abort();
+            }
+            catch { }
         }
 
         private void Listen()
@@ -109,7 +117,7 @@ namespace AlbyAirLines
             {
                 if (Error != null) Error(ex.Message);
             }
-            
+
         }
     }
 }

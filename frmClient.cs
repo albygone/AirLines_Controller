@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace AlbyAirLines
@@ -11,23 +12,47 @@ namespace AlbyAirLines
     {
         private Client client;
         private AirPlaneClientModel apc;
-        private double delta = 0;
+        private Thread threadSend;
+
+        private double delta;
+
+        private Dictionary<char, double> types_delta = new Dictionary<char, double>
+        {
+            { 'L', 0.15},
+            { 'M', 0.25 },
+            { 'G', 0.10 },
+            { 'E', 0.08 }
+        };
+
+        Dictionary<string, char> names_types = new Dictionary<string, char>
+        {
+            { "boeing 747", 'L' },
+            { "f-16", 'M' },
+            { "elicottero", 'E' },
+            { "ultraleggero", 'G' }
+        };
 
         public frmClient()
         {
             InitializeComponent();
-        }
 
-        private void frmClient_Load(object sender, EventArgs e)
-        {
-            client = new Client("127.0.0.1", 5000);
+            client = new Client("127.0.0.1", 5000, Application.StartupPath);
             client.UpdateProgress += UpdateProgress;
             client.StopTravelling += StopTravelling;
+            client.Error += Error;
         }
 
         private void UpdateProgress(int progress)
         {
-            Invoke(new Action(() => { pgbAndamento.Value = progress; }));
+            try
+            {
+                Invoke(new Action(() =>
+                {
+                    if (pgbAndamento != null)
+                        pgbAndamento.Value = progress;
+                }));
+            }
+            catch { }
         }
 
         private void btnManda_Click(object sender, EventArgs e)
@@ -37,15 +62,7 @@ namespace AlbyAirLines
 
             try
             {
-                double delta = 0.25;
-
-                switch (apc.Type)
-                {
-                    default:
-                        break;
-                }
-
-                client.SendPositionSequence(1000, apc, delta);
+                threadSend = client.SendPositionSequence(1000, apc, types_delta[apc.Type]);
             }
             catch (Exception ex)
             {
@@ -59,67 +76,82 @@ namespace AlbyAirLines
         private void btnRoute_Click(object sender, EventArgs e)
         {
             int from, to;
+
             DataTable airports = client.GetAirports();
-            Random rnd = new Random();
 
-            Dictionary<string, char> names_types = new Dictionary<string, char>
+            if (airports != null)
             {
-                { "boeing 747", 'L' },
-                { "f-16", 'M' },
-                { "elicottero", 'G' },
-                { "ultraleggero", 'E' }
-            };
+                Random rnd = new Random();
 
-            Dictionary<char, double> types_delta = new Dictionary<char, double>
-            {
-                { 'L', 0.15},
-                { 'M', 0.25 },
-                { 'G', 0.10 },
-                { 'E', 0.8 }
-            };
+                pgbAndamento.Value = 0;
 
-            KeyValuePair<string, char> rnd_name_type = names_types.ElementAt(rnd.Next(0, names_types.Count));
-            delta = types_delta[rnd_name_type.Value];
+                var rnd_name_type = names_types.ElementAt(rnd.Next(0, names_types.Count));
 
-            do
-            {
-                from = rnd.Next(0, airports.Rows.Count);
-                to = rnd.Next(0, airports.Rows.Count);
-            } while (from == to);
+                delta = types_delta[rnd_name_type.Value];
 
-            apc = new AirPlaneClientModel(
-                Convert.ToDouble(airports.Rows[from][2]),
-                Convert.ToDouble(airports.Rows[from][3]),
-                rnd_name_type.Key,
-                rnd_name_type.Value,
-                client.RequestId()
-            )
-            {
-                ToLong = Convert.ToDouble(airports.Rows[to][2]),
-                ToLat = Convert.ToDouble(airports.Rows[to][3]),
-                FromLat = Convert.ToDouble(airports.Rows[from][3]),
-                FromLong = Convert.ToDouble(airports.Rows[from][2])
-            };
+                do
+                {
+                    from = rnd.Next(0, airports.Rows.Count);
+                    to = rnd.Next(0, airports.Rows.Count);
+                } while (from == to);
 
-            Dictionary<string, string> routeInformation = new Dictionary<string, string>
-            {
-                { "Aereo", apc.Name },
-                { "From", airports.Rows[from][1].ToString() },
-                { "To", airports.Rows[to][1].ToString() }
-            };
+                apc = new AirPlaneClientModel(
+                    Convert.ToDouble(airports.Rows[from][2]),
+                    Convert.ToDouble(airports.Rows[from][3]),
+                    rnd_name_type.Key,
+                    rnd_name_type.Value,
+                    client.RequestId()
+                )
+                {
+                    ToLong = Convert.ToDouble(airports.Rows[to][2]),
+                    ToLat = Convert.ToDouble(airports.Rows[to][3]),
+                    FromLat = Convert.ToDouble(airports.Rows[from][3]),
+                    FromLong = Convert.ToDouble(airports.Rows[from][2])
+                };
 
-            List<KeyValuePair<string, string>> lstDgv = new List<KeyValuePair<string, string>>();
+                var routeInformation = new Dictionary<string, string>
+                {
+                    { "Aereo", apc.Name },
+                    { "From", airports.Rows[from][1].ToString() },
+                    { "To", airports.Rows[to][1].ToString() }
+                };
 
-            lstDgv.AddRange(routeInformation);
+                var lstDgv = new List<KeyValuePair<string, string>>();
 
-            dgvRoute.DataSource = lstDgv;
-            dgvRoute.AutoResizeColumns();
+                lstDgv.AddRange(routeInformation);
+
+                dgvRoute.DataSource = lstDgv;
+                dgvRoute.AutoResizeColumns();
+
+                btnManda.Enabled = true;
+            }
         }
 
         private void StopTravelling()
         {
-            Invoke(new Action(() => btnManda.Enabled = true));
-            Invoke(new Action(() => btnRoute.Enabled = true));
+            try
+            {
+                Invoke(new Action(() =>
+                {
+                    if (btnManda != null && btnRoute != null)
+                    {
+                        btnManda.Enabled = true;
+                        btnRoute.Enabled = true;
+                    }
+                }));
+            }
+            catch { }
+        }
+
+        private void frmClient_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (threadSend != null)
+                threadSend.Abort();
+        }
+
+        private void Error(string message)
+        {
+            MessageBox.Show(message);
         }
     }
 }

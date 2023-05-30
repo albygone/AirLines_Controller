@@ -35,17 +35,14 @@
             this.trbDelta = new System.Windows.Forms.TrackBar();
             this.tmrSend = new System.Windows.Forms.Timer(this.components);
             this.tmrUpdate = new System.Windows.Forms.Timer(this.components);
-            this.chkUp = new System.Windows.Forms.CheckBox();
-            this.chkLeft = new System.Windows.Forms.CheckBox();
-            this.chkRight = new System.Windows.Forms.CheckBox();
-            this.chkDown = new System.Windows.Forms.CheckBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pcbRocket = new System.Windows.Forms.PictureBox();
             this.pcbStart = new System.Windows.Forms.PictureBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.pcbCockPit = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.trbDelta)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pcbRocket)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbStart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbCockPit)).BeginInit();
             this.SuspendLayout();
@@ -64,7 +61,8 @@
             // cmbStart
             // 
             this.cmbStart.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(77)))), ((int)(((byte)(89)))));
-            this.cmbStart.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.cmbStart.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbStart.ForeColor = System.Drawing.Color.White;
             this.cmbStart.FormattingEnabled = true;
             this.cmbStart.Location = new System.Drawing.Point(733, 395);
             this.cmbStart.Name = "cmbStart";
@@ -93,67 +91,27 @@
             this.tmrUpdate.Interval = 25;
             this.tmrUpdate.Tick += new System.EventHandler(this.tmrUpdate_Tick);
             // 
-            // chkUp
-            // 
-            this.chkUp.AutoSize = true;
-            this.chkUp.Location = new System.Drawing.Point(329, 189);
-            this.chkUp.Name = "chkUp";
-            this.chkUp.Size = new System.Drawing.Size(56, 24);
-            this.chkUp.TabIndex = 5;
-            this.chkUp.Text = "Up";
-            this.chkUp.UseVisualStyleBackColor = true;
-            // 
-            // chkLeft
-            // 
-            this.chkLeft.AutoSize = true;
-            this.chkLeft.Location = new System.Drawing.Point(252, 226);
-            this.chkLeft.Name = "chkLeft";
-            this.chkLeft.Size = new System.Drawing.Size(63, 24);
-            this.chkLeft.TabIndex = 6;
-            this.chkLeft.Text = "Left";
-            this.chkLeft.UseVisualStyleBackColor = true;
-            // 
-            // chkRight
-            // 
-            this.chkRight.AutoSize = true;
-            this.chkRight.Location = new System.Drawing.Point(418, 226);
-            this.chkRight.Name = "chkRight";
-            this.chkRight.Size = new System.Drawing.Size(73, 24);
-            this.chkRight.TabIndex = 7;
-            this.chkRight.Text = "Right";
-            this.chkRight.UseVisualStyleBackColor = true;
-            // 
-            // chkDown
-            // 
-            this.chkDown.AutoSize = true;
-            this.chkDown.Location = new System.Drawing.Point(329, 265);
-            this.chkDown.Name = "chkDown";
-            this.chkDown.Size = new System.Drawing.Size(76, 24);
-            this.chkDown.TabIndex = 8;
-            this.chkDown.Text = "Down";
-            this.chkDown.UseVisualStyleBackColor = true;
-            // 
             // pictureBox2
             // 
             this.pictureBox2.Image = global::AlbyAirLines.Properties.Resources.stopButton;
             this.pictureBox2.Location = new System.Drawing.Point(581, 454);
-            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Name = "pcbStop";
             this.pictureBox2.Size = new System.Drawing.Size(31, 30);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox2.TabIndex = 10;
             this.pictureBox2.TabStop = false;
-            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
+            this.pictureBox2.Click += new System.EventHandler(this.pcbStop_Click);
             // 
-            // pictureBox1
+            // pcbRocket
             // 
-            this.pictureBox1.Image = global::AlbyAirLines.Properties.Resources.rocket;
-            this.pictureBox1.Location = new System.Drawing.Point(581, 526);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(31, 30);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 9;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.pcbRocket.Image = global::AlbyAirLines.Properties.Resources.rocket;
+            this.pcbRocket.Location = new System.Drawing.Point(581, 526);
+            this.pcbRocket.Name = "pcbRocket";
+            this.pcbRocket.Size = new System.Drawing.Size(31, 30);
+            this.pcbRocket.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pcbRocket.TabIndex = 9;
+            this.pcbRocket.TabStop = false;
+            this.pcbRocket.Click += new System.EventHandler(this.pcbRocket_Click);
             // 
             // pcbStart
             // 
@@ -165,6 +123,16 @@
             this.pcbStart.TabIndex = 2;
             this.pcbStart.TabStop = false;
             this.pcbStart.Click += new System.EventHandler(this.pcbStart_Click);
+            // 
+            // textBox1
+            // 
+            this.textBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(67)))), ((int)(((byte)(46)))));
+            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox1.Location = new System.Drawing.Point(353, 512);
+            this.textBox1.Name = "txtDirection";
+            this.textBox1.Size = new System.Drawing.Size(34, 19);
+            this.textBox1.TabIndex = 12;
+            this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtDirection_KeyPress);
             // 
             // pcbCockPit
             // 
@@ -185,12 +153,9 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1318, 885);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.pictureBox2);
-            this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.chkDown);
-            this.Controls.Add(this.chkRight);
-            this.Controls.Add(this.chkLeft);
-            this.Controls.Add(this.chkUp);
+            this.Controls.Add(this.pcbRocket);
             this.Controls.Add(this.trbDelta);
             this.Controls.Add(this.cmbStart);
             this.Controls.Add(this.pcbStart);
@@ -198,10 +163,11 @@
             this.Controls.Add(this.pcbCockPit);
             this.Name = "frmCockPit";
             this.Text = "Cock pit";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmCockPit_FormClosing);
             this.Load += new System.EventHandler(this.frmCockPit_Load);
             ((System.ComponentModel.ISupportInitialize)(this.trbDelta)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pcbRocket)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbStart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbCockPit)).EndInit();
             this.ResumeLayout(false);
@@ -210,19 +176,15 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.PictureBox pcbCockPit;
         private System.Windows.Forms.TextBox txtIp;
         private System.Windows.Forms.PictureBox pcbStart;
         private System.Windows.Forms.ComboBox cmbStart;
         private System.Windows.Forms.TrackBar trbDelta;
         private System.Windows.Forms.Timer tmrSend;
         private System.Windows.Forms.Timer tmrUpdate;
-        private System.Windows.Forms.CheckBox chkUp;
-        private System.Windows.Forms.CheckBox chkLeft;
-        private System.Windows.Forms.CheckBox chkRight;
-        private System.Windows.Forms.CheckBox chkDown;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox pcbRocket;
         private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.PictureBox pcbCockPit;
     }
 }

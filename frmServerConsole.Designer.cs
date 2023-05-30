@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnStop = new System.Windows.Forms.Button();
+            this.btnApriClient = new System.Windows.Forms.Button();
             this.dgvProva = new System.Windows.Forms.DataGridView();
             this.tmrFetch = new System.Timers.Timer();
             this.btnOpenControlRoom = new System.Windows.Forms.Button();
@@ -38,15 +38,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.tmrFetch)).BeginInit();
             this.SuspendLayout();
             // 
-            // btnStop
+            // btnApriClient
             // 
-            this.btnStop.Location = new System.Drawing.Point(88, 54);
-            this.btnStop.Name = "btnStop";
-            this.btnStop.Size = new System.Drawing.Size(188, 63);
-            this.btnStop.TabIndex = 1;
-            this.btnStop.Text = "Apri client";
-            this.btnStop.UseVisualStyleBackColor = true;
-            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            this.btnApriClient.Location = new System.Drawing.Point(88, 54);
+            this.btnApriClient.Name = "btnOpenClient";
+            this.btnApriClient.Size = new System.Drawing.Size(188, 63);
+            this.btnApriClient.TabIndex = 1;
+            this.btnApriClient.Text = "Apri client";
+            this.btnApriClient.UseVisualStyleBackColor = true;
+            this.btnApriClient.Click += new System.EventHandler(this.btnOpenClient_Click);
             // 
             // dgvProva
             // 
@@ -106,9 +106,10 @@
             this.Controls.Add(this.btnClearLive);
             this.Controls.Add(this.btnOpenControlRoom);
             this.Controls.Add(this.dgvProva);
-            this.Controls.Add(this.btnStop);
+            this.Controls.Add(this.btnApriClient);
             this.Name = "frmServerConsole";
             this.Text = "Server console";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmServerConsole_Closing);
             this.Load += new System.EventHandler(this.frmServerConsole_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvProva)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tmrFetch)).EndInit();
@@ -124,7 +125,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.Button btnApriClient;
         private System.Windows.Forms.Button btnClearLive;
         private System.Windows.Forms.Button btnOpenCockpit;
     }

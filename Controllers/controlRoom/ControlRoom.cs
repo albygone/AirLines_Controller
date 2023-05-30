@@ -11,27 +11,31 @@ namespace AlbyLib.controlRoom
 {
     public class ControlRoom
     {
-        private AlbySqlControllerSingle _sqlController;
-        private SocketControlRoom _socketControlRoom;
+        private AlbySqlControllerMultiple sqlController;
+        private SocketControlRoom socketControlRoom;
 
-        private string DbPath =
-            "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Users\\albyg\\Documents\\Scuola\\2022-2023\\Informatica\\Progetti\\Alby air lines\\DataBase\\AAL_DB.mdf\";Integrated Security=True;Connect Timeout=30";
+        public delegate void ErrorDelegate(string message);
+        public event ErrorDelegate Error;
 
         private List<PictureBox> lstPcbAirPlane;
 
-        public (int, int) cockPitPosition;
-
         private PictureBox pcbMap;
 
-        public ControlRoom(PictureBox pcbMap)
+        private string DbPath = "";
+
+        public (int, int) cockPitPosition;
+
+        public ControlRoom(PictureBox pcbMap, string path)
         {
             this.pcbMap = pcbMap;
 
-            _sqlController = new AlbySqlControllerSingle(DbPath);
-            _socketControlRoom = new SocketControlRoom("127.0.0.1", 10000);
-            _socketControlRoom.ClientConnected += CockPitConnected;
+            DbPath = DbPath = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"{path}\\DataBase\\AAL_DB.mdf\";Integrated Security=True;Connect Timeout=30";
 
-            _socketControlRoom.Start();
+            sqlController = new AlbySqlControllerMultiple(DbPath);
+            socketControlRoom = new SocketControlRoom(10000);
+            socketControlRoom.ClientConnected += CockPitConnected;
+
+            socketControlRoom.Start();
         }
 
         private string CockPitConnected(string data)
@@ -52,7 +56,19 @@ namespace AlbyLib.controlRoom
 
         public DataTable GetLivePositions()
         {
-            return (DataTable)_sqlController.Query("SELECT * FROM live_air_traffic");
+            DataTable dt = null;
+
+            try
+            {
+                dt = (DataTable)sqlController.Query("SELECT * FROM live_air_traffic");
+            }
+            catch (Exception ex)
+            {
+                if (Error != null)
+                    Error(ex.Message);
+            }
+
+            return dt;
         }
 
         public PictureBox PlotPosition(AirPlaneClientModel apc, string id)

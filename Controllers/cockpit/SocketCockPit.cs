@@ -23,43 +23,53 @@ namespace AlbyAirLines.Controllers.cockpit
             Port = port;
         }
 
-        public void OpenConnection()
+        public bool OpenConnection()
         {
+            bool connected = false;
             try
             {
                 _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _client.Connect(Ip.ToString(), Port);
-            }
-            catch (Exception ex)
-            {
-                Error(ex.Message);
-            }
-        }
 
-        public void CloseConnection()
-        {
-            _client.Shutdown(SocketShutdown.Both);
-            _client.Close();
-        }
-
-        public string SendData(string data, bool wait = true)
-        {
-            string response = "";
-
-            try
-            {
-                data += "<EOF>";
-
-                _client.Send(Encoding.ASCII.GetBytes(data));
-
-                if (wait)
-                    response = WaitForResponse();
+                connected = true;
             }
             catch (Exception ex)
             {
                 if (Error != null) Error(ex.Message);
             }
 
+            return connected;
+        }
+
+        public void CloseConnection()
+        {
+            if (_client.Connected)
+            {
+                _client.Shutdown(SocketShutdown.Both);
+                _client.Close();
+            }
+        }
+
+        public string SendData(string data, bool wait = true)
+        {
+            string response = "";
+
+            if (_client.Connected)
+            {
+                try
+                {
+                    data += "<EOF>";
+
+                    _client.Send(Encoding.ASCII.GetBytes(data));
+
+                    if (wait)
+                        response = WaitForResponse();
+                }
+                catch (Exception ex)
+                {
+                    if (Error != null) Error(ex.Message);
+                }
+            }
             return response;
         }
 
@@ -86,6 +96,7 @@ namespace AlbyAirLines.Controllers.cockpit
             catch (Exception ex)
             {
                 if (Error != null) Error(ex.Message);
+
                 response = "<EOF>";
             }
 

@@ -2,46 +2,62 @@
 using System;
 using System.Data;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace AlbyAirLines.Controllers
 {
     public class Client
     {
-        private SocketClient _sc;
+        private SocketClient socketClient;
 
-        private AlbySqlControllerSingle _sqlController;
+        private AlbySqlControllerMultiple sqlController;
 
         public delegate void UpdateProgressDelegate(int progress);
+        public delegate void ErrorDelegate(string message);
         public delegate void StopTravellingDelegate();
 
         public event UpdateProgressDelegate UpdateProgress;
         public event StopTravellingDelegate StopTravelling;
+        public event ErrorDelegate Error;
 
-        private string DbPath =
-            "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Users\\albyg\\Documents\\Scuola\\2022-2023\\Informatica\\Progetti\\Alby air lines\\DataBase\\AAL_DB.mdf\";Integrated Security=True;Connect Timeout=30";
 
-        public Client(string ip, int port)
+        private string DbPath = "";
+
+        public Client(string ip, int port, string path)
         {
-            _sc = new SocketClient(ip, port);
-            _sc.Error += HandleError;
-            _sqlController = new AlbySqlControllerSingle(DbPath);
+            socketClient = new SocketClient(ip, port);
+            socketClient.Error += HandleError;
+
+            DbPath = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"{path}\\DataBase\\AAL_DB.mdf\";Integrated Security=True;Connect Timeout=30";
+
+            sqlController = new AlbySqlControllerMultiple(DbPath);
         }
 
         public string RequestId()
         {
-            return _sc.SendData("idRequest<EOF>");
+            return socketClient.SendData("idRequest<EOF>");
         }
 
         public DataTable GetAirports()
         {
-            return (DataTable)_sqlController.Query("SELECT * FROM airports");
+            DataTable dt = null;
+            try
+            {
+                dt = (DataTable)sqlController.Query("SELECT * FROM airports");
+            }
+            catch (Exception ex)
+            {
+                if (Error != null)
+                    Error(ex.Message);
+            }
+            return dt;
         }
 
-        public void SendPositionSequence(int delay, AirPlaneClientModel apc, double delta)
+        public Thread SendPositionSequence(int delay, AirPlaneClientModel apc, double delta)
         {
             Thread thSend = new Thread(() => SendPositionSequenceHandler(delay, apc, delta));
             thSend.Start();
+
+            return thSend;
         }
 
         private void SendPositionSequenceHandler(int delay, object data, double delta)
@@ -55,8 +71,6 @@ namespace AlbyAirLines.Controllers
 
             while (true)
             {
-                //calculate the new longitude
-
                 if (apc.Longitude != apc.ToLong)
                 {
                     if (apc.Longitude > apc.ToLong)
@@ -74,8 +88,6 @@ namespace AlbyAirLines.Controllers
                     }
                 }
 
-                //check if i am at the right latitude
-
                 if (!(apc.Latitude <= apc.ToLat + deltaDouble && apc.Latitude >= apc.ToLat - deltaDouble))
                 {
                     if (apc.Latitude > apc.ToLat)
@@ -86,12 +98,8 @@ namespace AlbyAirLines.Controllers
                 else
                     apc.Latitude = apc.ToLat;
 
-                //check if i am at the right longitude
-
                 if (apc.Longitude <= apc.ToLong + deltaDouble && apc.Longitude >= apc.ToLong - deltaDouble)
                     apc.Longitude = apc.ToLong;
-
-                //pacman effect
 
                 if (apc.Longitude < -180)
                     apc.Longitude = 180;
@@ -113,7 +121,7 @@ namespace AlbyAirLines.Controllers
                     return;
                 }
 
-                string response = _sc.SendJsonData(apc);
+                string response = socketClient.SendJsonData(apc);
 
                 if (response != "200")
                 {
@@ -137,9 +145,10 @@ namespace AlbyAirLines.Controllers
                 * Math.Cos(lat2 * Math.PI / 180) * Math.Cos((long2 * Math.PI / 180) - (long1 * Math.PI / 180))) * 6371;
         }
 
-        public void HandleError(string msg)
+        public void HandleError(string message)
         {
-            MessageBox.Show(msg);
+            if (message != "Thread interrotto." && Error != null)
+                Error(message);
         }
     }
 }
